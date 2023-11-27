@@ -161,7 +161,7 @@ export async function uploadFile(file: File) {
   }
 }
 
-export async function getFilePreview(fileId: string) {
+export function getFilePreview(fileId: string) {
   try {
     const fileUrl = storage.getFilePreview(
       appWriteConfig.storageId,
@@ -183,6 +183,88 @@ export async function deleteFile(fileId: string) {
     await storage.deleteFile(appWriteConfig.storageId, fileId);
 
     return { status: "ok" };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getRecentPosts() {
+  const posts = await databases.listDocuments(
+    appWriteConfig.databaseId,
+    appWriteConfig.postCollectionId,
+    [Query.orderDesc("$createdAt"), Query.limit(20)]
+  );
+
+  if (!posts) throw Error;
+
+  return posts;
+}
+
+export async function likePost(postId: string, likeArray: string[]) {
+  try {
+    const updatedPost = await databases.updateDocument(
+      appWriteConfig.databaseId,
+      appWriteConfig.postCollectionId,
+      postId,
+      {
+        likes: likeArray,
+      }
+    );
+
+    if (!updatedPost) throw Error;
+
+    return updatedPost;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function savePost(postId: string, userId: string) {
+  try {
+    const updatedPost = await databases.createDocument(
+      appWriteConfig.databaseId,
+      appWriteConfig.savesCollectionId,
+      ID.unique(),
+
+      {
+        user: userId,
+        post: postId,
+      }
+    );
+
+    if (!updatedPost) throw Error;
+
+    return updatedPost;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function deletePost(savedRecordId: string) {
+  try {
+    const statusCode = await databases.deleteDocument(
+      appWriteConfig.databaseId,
+      appWriteConfig.savesCollectionId,
+      savedRecordId
+    );
+
+    if (!statusCode) throw Error;
+
+    return { status: "ok" };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getPostById(postId: string) {
+  try {
+    const post = await databases.getDocument(
+      appWriteConfig.databaseId,
+      appWriteConfig.postCollectionId,
+      postId
+    );
+
+    return post;
   } catch (error) {
     console.log(error);
   }
