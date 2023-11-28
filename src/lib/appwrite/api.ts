@@ -375,3 +375,33 @@ export async function searchPosts(searchTerm: string) {
     console.log(error);
   }
 }
+
+export async function getSaveCurrentUser() {
+  try {
+    const currentAccount = await getAccount();
+
+    if (!currentAccount) throw Error;
+
+    const currentUserResponse = await databases.listDocuments(
+      appWriteConfig.databaseId,
+      appWriteConfig.userCollectionId,
+      [Query.equal("accountId", currentAccount.$id)]
+    );
+
+    if (
+      !currentUserResponse.documents ||
+      currentUserResponse.documents.length === 0
+    )
+      throw Error;
+
+    const currentUserDocument = currentUserResponse.documents[0];
+
+    // Extract the 'save' array from the document
+    const saveArray = currentUserDocument.save || [];
+
+    return { ...currentUserDocument, save: saveArray }; // Include 'save' array in the returned object
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}

@@ -1,15 +1,13 @@
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useSignOutAccount } from "@/lib/react-query/queries";
-import { useEffect } from "react";
 import { useUserContext } from "@/context/AuthContext";
 import { sidebarLinks } from "@/constants";
 import { INavLink } from "@/types";
 
 const LeftSidebar = () => {
   const { pathname } = useLocation();
-  const { mutate: signOut, isSuccess } = useSignOutAccount();
-  const navigate = useNavigate();
+  const { mutate: signOut } = useSignOutAccount();
   const { user } = useUserContext();
   return (
     <>
